@@ -4,6 +4,9 @@
 #include <corecrt_math_defines.h>
 
 class BallisticsCalculator {
+private:
+    double v, k, m, r, p, C, g, z, x, y;
+    double S, k0, k1, s;
 public:
     BallisticsCalculator(double v, double k, double m, double r, double p, double C, double g, double z, double x, double y)
         : v(v), k(k), m(m), r(r), p(p), C(C), g(g), z(z), x(x), y(y) {
@@ -20,7 +23,9 @@ public:
     double calculateZactual(double angle, double t) const {
         return v * t * std::sin(angle) - g * t * t / 2;
     }
-
+    bool judge() {
+        bool deita = v * v - 2 * g * z > 0;
+    };
     double solutionAngle() const {
         double angle, t, dz, za, ztemp;
         angle = std::atan2(z, s);
@@ -35,12 +40,8 @@ public:
                 return angle;
             }
         }
-        return -1; // 无解
+        return -1; // 迭代次数过多
     }
-
-private:
-    double v, k, m, r, p, C, g, z, x, y;
-    double S, k0, k1, s;
 };
 
 int main() {
@@ -56,13 +57,15 @@ int main() {
     double y = 4;       
 
     BallisticsCalculator calculator(v, k, m, r, p, C, g, z, x, y);
-
-    double angle = calculator.solutionAngle();
-    if (angle == -1) {
-        std::cout << "No solution!" << std::endl;
-    } else {
-        std::cout << "Final Angle: " << angle << std::endl;
+    if (calculator.judge()){
+        double angle = calculator.solutionAngle();
+        if (angle == -1) {
+        std::cout << "迭代次数过多!" << std::endl;
+        } else {
+        std::cout << "最终角度是: " << angle << std::endl;
+        }
+    }else{
+        std::cout << "无解!" << std::endl;
     }
-
     return 0;
 }
